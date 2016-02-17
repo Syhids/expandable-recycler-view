@@ -47,9 +47,9 @@ public abstract class ExpandableRecyclerAdapter<PVH extends ParentViewHolder, CV
      */
     protected List<Object> mItemList;
 
-    private List<? extends ParentListItem> mParentItemList;
+    private List<ParentListItem> mParentItemList = new ArrayList<>();
     private ExpandCollapseListener mExpandCollapseListener;
-    private List<RecyclerView> mAttachedRecyclerViewPool;
+    private List<RecyclerView> mAttachedRecyclerViewPool = new ArrayList<>();
 
     /**
      * Allows objects to register themselves as expand/collapse listeners to be
@@ -78,8 +78,8 @@ public abstract class ExpandableRecyclerAdapter<PVH extends ParentViewHolder, CV
     /**
      * Primary constructor. Sets up {@link #mParentItemList} and {@link #mItemList}.
      *
-     * Changes to {@link #mParentItemList} should be made through add/remove methods in
-     * {@link ExpandableRecyclerAdapter}
+     * Changes to {@link #mParentItemList} should be made through
+     * add/allAll/remove/clear methods in {@link ExpandableRecyclerAdapter}
      *
      * @param parentItemList List of all {@link ParentListItem} objects to be
      *                       displayed in the RecyclerView that this
@@ -87,9 +87,38 @@ public abstract class ExpandableRecyclerAdapter<PVH extends ParentViewHolder, CV
      */
     public ExpandableRecyclerAdapter(@NonNull List<? extends ParentListItem> parentItemList) {
         super();
-        mParentItemList = parentItemList;
-        mItemList = ExpandableRecyclerAdapterHelper.generateParentChildItemList(parentItemList);
-        mAttachedRecyclerViewPool = new ArrayList<>();
+        addAll(parentItemList);
+    }
+
+    /**
+     * Use this constructor if you want to add items after creating the adapter.
+     */
+    public ExpandableRecyclerAdapter() {
+    }
+
+    public void add(@NonNull ParentListItem item) {
+        mParentItemList.add(item);
+        onItemsModified();
+    }
+
+    public void addAll(@NonNull List<? extends ParentListItem> items) {
+        mParentItemList.addAll(items);
+        onItemsModified();
+    }
+
+    public void remove(@NonNull ParentListItem item) {
+        mParentItemList.remove(item);
+        onItemsModified();
+    }
+
+    public void clear() {
+        mParentItemList.clear();
+        onItemsModified();
+    }
+
+    private void onItemsModified() {
+        mItemList = ExpandableRecyclerAdapterHelper.generateParentChildItemList(mParentItemList);
+        mAttachedRecyclerViewPool.clear();
     }
 
     /**
